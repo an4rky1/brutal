@@ -2,7 +2,7 @@ FROM serversideup/php:8.3-fpm-nginx AS base
 
 FROM base AS build
 
-RUN install-php-extensions pdo_sqlite
+RUN install-php-extensions pdo_pgsql
 
 WORKDIR /var/www/html
 
@@ -16,7 +16,7 @@ RUN php artisan optimize:clear
 
 FROM base
 
-RUN install-php-extensions pdo_sqlite
+RUN install-php-extensions pdo_pgsql
 
 WORKDIR /var/www/html
 
