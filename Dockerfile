@@ -22,5 +22,7 @@ WORKDIR /var/www/html
 
 COPY --from=build /var/www/html .
 
+COPY --chmod=755 bin/deploy.sh /etc/cont-init.d/00-deploy
+
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
