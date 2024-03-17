@@ -4,30 +4,22 @@ set -e
 
 cd /var/www/html
 
-echo ">>> Deploy: starting"
+cp -n .env.example .env 2>/dev/null || true
 
 if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "None" ]; then
-    cp -n .env.example .env 2>/dev/null || true
-    php artisan key:generate --force --quiet
+    php artisan key:generate --force
 fi
 
 mkdir -p storage/framework/views storage/framework/cache storage/framework/sessions storage/logs
-echo ">>> Deploy: dirs created"
 
-php artisan migrate --force --quiet
-echo ">>> Deploy: migrated"
+APP_URL=http://localhost php artisan migrate --force
 
 if [ ! -f storage/.seed ]; then
-    php artisan db:seed --force --quiet
+    APP_URL=http://localhost php artisan db:seed --force
     touch storage/.seed
-    echo ">>> Deploy: seeded"
 fi
 
-php artisan view:cache
-echo ">>> Deploy: views cached"
+APP_URL=http://localhost php artisan view:cache
 
-php artisan config:cache
-echo ">>> Deploy: config cached"
-
-php artisan route:cache
-echo ">>> Deploy: routes cached"
+APP_URL=${APP_URL:-${RENDER_EXTERNAL_URL:-http://localhost}} php artisan config:cache
+APP_URL=${APP_URL:-${RENDER_EXTERNAL_URL:-http://localhost}} php artisan route:cache
