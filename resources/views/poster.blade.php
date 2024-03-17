@@ -45,6 +45,16 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        @keyframes loader-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
         .bg-grid {
             background-image:
                 linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px),
@@ -63,6 +73,8 @@
         .animate-bounce-in { animation: bounce-in 0.4s ease-out; }
         .animate-wiggle { animation: wiggle 0.3s ease-in-out infinite; }
         .animate-slide-up { animation: slide-up 0.5s ease-out; }
+        .animate-loader { animation: loader-pulse 0.6s ease-in-out infinite; }
+        .animate-blink { animation: blink 1s step-end infinite; }
 
         .neo-border {
             border: 4px solid #000;
@@ -152,6 +164,11 @@
                 Thought of the Day
             </div>
 
+            <div x-show="loading" class="flex flex-col items-center justify-center py-16 md:py-24">
+                <span class="font-black text-3xl sm:text-4xl md:text-5xl lg:text-6xl uppercase tracking-widest animate-loader" :style="`color: ${textColor};`">THINKING</span>
+                <span class="font-black text-3xl sm:text-4xl md:text-5xl lg:text-6xl animate-blink" :style="`color: ${textColor};`">...</span>
+            </div>
+
             <blockquote
                 class="font-black text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.05] tracking-tight mb-6 md:mb-8"
                 x-show="!loading"
@@ -230,6 +247,7 @@
                 loading: false,
                 viewedCount: 0,
                 totalCount: 0,
+                cache: null,
 
                 async init() {
                     await this.getTotalCount();
@@ -250,18 +268,36 @@
                     this.loading = true;
 
                     try {
-                        const response = await fetch('/api/quote/random');
-                        const data = await response.json();
+                        let data;
+
+                        if (this.cache) {
+                            data = this.cache;
+                            this.cache = null;
+                        } else {
+                            const response = await fetch('/api/quote/random');
+                            data = await response.json();
+                        }
 
                         this.quote = data;
                         this.bgColor = data.bg_color;
                         this.textColor = data.text_color;
                         this.viewedCount++;
+
+                        this.prefetch();
                     } catch (error) {
                         console.error('Failed to fetch quote:', error);
                     }
 
                     this.loading = false;
+                },
+
+                async prefetch() {
+                    try {
+                        const response = await fetch('/api/quote/random');
+                        this.cache = await response.json();
+                    } catch (error) {
+                        console.error('Prefetch failed:', error);
+                    }
                 },
 
                 async downloadPoster() {
