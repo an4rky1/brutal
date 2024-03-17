@@ -21,8 +21,5 @@ fi
 
 APP_URL=http://localhost php artisan view:cache
 
-RENDER_URL=${RENDER_EXTERNAL_URL:-$APP_URL}
-RENDER_URL=${RENDER_URL:-http://localhost}
-RENDER_URL="${RENDER_URL/#http:/https:}"
-APP_URL=$RENDER_URL php artisan config:cache
-APP_URL=$RENDER_URL php artisan route:cache
+php artisan config:cache
+php artisan route:cache
