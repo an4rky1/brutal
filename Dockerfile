@@ -1,4 +1,4 @@
-FROM serversideup/php:8.3-fpm-nginx AS base
+FROM serversideup/php:8.4-fpm-nginx AS base
 
 FROM base AS build
 
