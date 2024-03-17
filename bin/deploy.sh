@@ -2,23 +2,32 @@
 
 set -e
 
-if [ ! -f .env ]; then
-    cp .env.example .env
+cd /var/www/html
+
+echo ">>> Deploy: starting"
+
+if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "None" ]; then
+    cp -n .env.example .env 2>/dev/null || true
+    php artisan key:generate --force --quiet
 fi
 
 mkdir -p storage/framework/views storage/framework/cache storage/framework/sessions storage/logs
-
-php artisan key:generate --force --quiet
+echo ">>> Deploy: dirs created"
 
 php artisan migrate --force --quiet
+echo ">>> Deploy: migrated"
 
-if [ ! -f /var/www/html/storage/.seed ]; then
+if [ ! -f storage/.seed ]; then
     php artisan db:seed --force --quiet
-    touch /var/www/html/storage/.seed
+    touch storage/.seed
+    echo ">>> Deploy: seeded"
 fi
 
-php artisan view:cache --quiet
-php artisan config:cache --quiet
-php artisan route:cache --quiet
+php artisan view:cache
+echo ">>> Deploy: views cached"
 
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache 2>/dev/null || true
+php artisan config:cache
+echo ">>> Deploy: config cached"
+
+php artisan route:cache
+echo ">>> Deploy: routes cached"
