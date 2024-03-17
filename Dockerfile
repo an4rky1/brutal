@@ -9,8 +9,9 @@ WORKDIR /var/www/html
 COPY . .
 
 USER root
-RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 777 storage bootstrap/cache
+RUN mkdir -p public/build \
+    && chown -R www-data:www-data storage bootstrap/cache public/build \
+    && chmod -R 777 storage bootstrap/cache public/build
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
     && apt-get clean \
