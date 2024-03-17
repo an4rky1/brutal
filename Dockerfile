@@ -22,8 +22,6 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progre
 
 RUN npm ci && npm run build
 
-RUN php artisan optimize:clear
-
 FROM base
 
 RUN install-php-extensions pdo_pgsql
