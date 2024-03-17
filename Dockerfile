@@ -8,6 +8,11 @@ WORKDIR /var/www/html
 
 COPY . .
 
+USER root
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 777 storage bootstrap/cache
+USER www-data
+
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
 RUN npm ci && npm run build
